@@ -1,7 +1,7 @@
 # config.py
-TOKEN = 'توکن رباتت رو اینجا بذار'
+TOKEN = 8053207261:AAH0QYpgQs9H_CV7865DDh6KCDIIi5B4aao
 
-ADMIN_IDS = [123456789]  # فقط ادمین‌ها می‌تونن تایید کنن
+ADMIN_IDS = 387483486
 
 GITHUB_FILES = {
     'inventory': 'https://raw.githubusercontent.com/username/repo/main/inventory.xlsx',
