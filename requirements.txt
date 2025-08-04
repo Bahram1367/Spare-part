@@ -1,5 +1,6 @@
 python-telegram-bot==20.7
-schedule
-openpyxl
 pandas
+openpyxl
+requests
+schedule
 python-dotenv
