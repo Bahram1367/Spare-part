@@ -1,49 +1,43 @@
-import asyncio
-import logging
-import threading
-import schedule
-import time
+import os
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from utils import generate_final_inventory
+from config import BOT_TOKEN, ADMIN_IDS, FINAL_FILE_NAME
 
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from utils import generate_final_inventory, send_inventory_file
-from config import BOT_TOKEN, ADMIN_IDS
-
-logging.basicConfig(level=logging.INFO)
-
-# وقتی کاربر پیام داد
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    if str(user_id) not in ADMIN_IDS:
-        await update.message.reply_text("⛔ دسترسی شما محدود شده.")
+    user_id = str(update.effective_user.id)
+    if user_id not in ADMIN_IDS:
+        await update.message.reply_text("دسترسی ندارید.")
         return
-    await send_inventory_file(update, context)
 
-# زمان‌بندی روزانه ۲ بار
-def run_scheduler():
-    schedule.every().day.at("10:00").do(generate_final_inventory)
-    schedule.every().day.at("17:00").do(generate_final_inventory)
-    print("🕘 زمان‌بندی اجرا می‌شود: 10:00 و 17:00 روزانه")
+    keyboard = [
+        [InlineKeyboardButton("دریافت موجودی", callback_data="get_inventory")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("سلام! دکمه رو بزن تا موجودی برات آماده و ارسال بشه.", reply_markup=reply_markup)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    user_id = str(query.from_user.id)
 
-# اجرای اصلی
+    if user_id not in ADMIN_IDS:
+        await query.answer("دسترسی ندارید.", show_alert=True)
+        return
+
+    if query.data == "get_inventory":
+        await query.answer("در حال آماده‌سازی فایل موجودی...")
+        generate_final_inventory()
+        with open(FINAL_FILE_NAME, "rb") as f:
+            await context.bot.send_document(chat_id=query.message.chat_id, document=f)
+        await query.message.reply_text("فایل موجودی ارسال شد.")
+
 async def main():
-    # ساخت فایل نهایی هنگام شروع
-    print("🔧 ساخت اولیه فایل موجودی...")
-    generate_final_inventory()
-
-    # اجرای زمان‌بندی در ترد جداگانه
-    threading.Thread(target=run_scheduler, daemon=True).start()
-
-    # شروع ربات تلگرام
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-
-    print("🤖 ربات فعال است")
+    app.add_handler(CallbackQueryHandler(button_handler))
+    print("🚀 ربات شروع به کار کرد.")
     await app.run_polling()
 
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
