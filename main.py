@@ -25,6 +25,7 @@ price_files = {
     "shaygan": "https://raw.githubusercontent.com/yourusername/yourrepo/main/prices/shaygan.xlsx",
 }
 
+# --- درصد افزایش قیمت هر برند ---
 price_increase = {
     "dinapart": 0.13,
     "amata": 0.13,
@@ -40,6 +41,8 @@ FINAL_FILE = "final_inventory_with_price.xlsx"
 INVENTORY_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/inventory/inventory.xlsx"
 
 def round_up_price(price):
+    if pd.isna(price):
+        return price
     return int(math.ceil(price / 1000.0) * 1000)
 
 def read_excel_from_url(url):
@@ -52,10 +55,16 @@ def process_price_files():
     for brand, url in price_files.items():
         df = read_excel_from_url(url)
         df["برند"] = brand
+
+        # اعمال درصد افزایش قیمت (اگر داشته باشد)
         increase = price_increase.get(brand, 0)
         df["قیمت"] = df["قیمت"] * (1 + increase)
+
+        # رند کردن قیمت‌ها به بالا (همه برندها)
         df["قیمت"] = df["قیمت"].apply(round_up_price)
+
         price_dfs.append(df)
+
     combined_prices = pd.concat(price_dfs, ignore_index=True)
     combined_prices = combined_prices.sort_values(by=["کدکالا", "نام کالا"])
     return combined_prices
@@ -118,6 +127,8 @@ def button(update: Update, context: CallbackContext):
             query.message.reply_text("⛔️ فقط ادمین به این ربات دسترسی دارد.")
             return
 
+        build_final_file()  # فایل رو تازه بساز
+
         if not os.path.exists(FINAL_FILE):
             query.message.reply_text("⚠️ فایل موجود نیست. لطفاً بعداً تلاش کنید.")
             return
@@ -129,8 +140,6 @@ def main():
     if not TOKEN:
         print("❌ BOT_TOKEN در فایل .env پیدا نشد.")
         return
-
-    build_final_file()
 
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
