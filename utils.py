@@ -1,10 +1,38 @@
-# utils.py
-
 import pandas as pd
 import requests
 from io import BytesIO
+import json
+import os
 from config import GITHUB_FILES, FINAL_FILENAME
 
+USERS_FILE = "users.json"
+
+# -------- مدیریت کاربران --------
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return []
+    with open(USERS_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("users", [])
+
+def save_users(users):
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump({"users": users}, f, ensure_ascii=False, indent=2)
+
+def add_user(user_id):
+    users = load_users()
+    if user_id not in users:
+        users.append(user_id)
+        save_users(users)
+        return True
+    return False
+
+def is_user_approved(user_id):
+    users = load_users()
+    return user_id in users
+
+# -------- دانلود و پردازش اکسل --------
 
 def download_excel_from_url(url):
     """دانلود فایل اکسل از URL (مثلاً GitHub)"""
@@ -13,7 +41,6 @@ def download_excel_from_url(url):
         return pd.read_excel(BytesIO(response.content))
     else:
         raise Exception(f"خطا در دریافت فایل از: {url}")
-
 
 def fetch_all_data():
     """خواندن موجودی و لیست برندها از GitHub"""
@@ -25,7 +52,6 @@ def fetch_all_data():
         brand_dfs.append(df)
     
     return inventory_df, brand_dfs
-
 
 def clean_and_merge(inventory_df, brand_dfs):
     """ادغام برندها، حذف تکراری، join با موجودی"""
@@ -51,7 +77,6 @@ def clean_and_merge(inventory_df, brand_dfs):
     merged = merged.sort_values(by="نام کالا")
     
     return merged
-
 
 def generate_final_inventory():
     """ساخت فایل نهایی اکسل"""
