@@ -1,7 +1,11 @@
-# config.py
-TOKEN = 8053207261:AAH0QYpgQs9H_CV7865DDh6KCDIIi5B4aao
+import os
+from dotenv import load_dotenv
 
-ADMIN_IDS = 387483486
+load_dotenv()  # بارگذاری فایل .env
+
+TOKEN = os.getenv("BOT_TOKEN")
+
+ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 
 GITHUB_FILES = {
     'inventory': 'https://raw.githubusercontent.com/username/repo/main/inventory.xlsx',
