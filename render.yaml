@@ -1,12 +1,8 @@
 services:
   - type: web
-    name: telegram-inventory-bot
+    name: your-service-name
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
-    envVars:
-      - key: BOT_TOKEN
-        fromEnvVar: BOT_TOKEN
-      - key: ADMIN_ID
-        fromEnvVar: ADMIN_ID
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+    pythonVersion: "3.10"
