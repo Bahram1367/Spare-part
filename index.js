@@ -26,7 +26,6 @@ const bot = new Telegraf(BOT_TOKEN);
 // --- Persistence (JSON files) ---
 const DATA_DIR = './data';
 const MEMBERS_FILE = `${DATA_DIR}/members.json`;   // approved members
-
 const ORDERS_FILE = `${DATA_DIR}/orders.json`;     // submitted orders
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
@@ -45,11 +44,11 @@ const cache = {
 
 // --- Helpers ---
 const brandFiles = BRAND_FILES.split(',').map(s => s.trim());
-const rawUrl = (fname) => ${GITHUB_RAW_BASE}/${encodeURI(fname)};
+const rawUrl = (fname) => `${GITHUB_RAW_BASE}/${encodeURI(fname)}`;
 
 async function fetchXlsxRows(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(Fetch failed: ${url} ${res.status});
+  if (!res.ok) throw new Error(`Fetch failed: ${url} ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
   const wb = XLSX.read(buf, { type: 'buffer' });
   const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -79,9 +78,9 @@ async function buildMergedCache(force = false) {
   for (const [brand, rows] of Object.entries(priceMap)) {
     const idx = new Map();
     rows.forEach(r => {
-      const code = normalize(r['کد کالا']  r['کد']  r['code']);
+      const code = normalize(r['کد کالا'] || r['کد'] || r['code']);
       const name = normalize(r['نام کالا'] || r['name']);
-      const priceRaw = String(r['قیمت']  r['price']  '').replace(/[^\d]/g, '');
+      const priceRaw = String(r['قیمت'] || r['price'] || '').replace(/[^\d]/g, '');
       const price = priceRaw ? Number(priceRaw) : 0;
       if (code) idx.set(code, { code, name, price, brand });
     });
@@ -90,11 +89,20 @@ async function buildMergedCache(force = false) {
 
   const merged = [];
   for (const inv of inventoryRows) {
-    const code = normalize(inv['کد کالا']  inv['کد']  inv['code']);
+    const code = normalize(inv['کد کالا'] || inv['کد'] || inv['code']);
     const name = normalize(inv['نام کالا'] || inv['name']);
     const brand = normalize(inv['برند'] || inv['brand']).toLowerCase();
-    const qty = Number(inv['تعداد']  inv['qty']  inv['موجودی'] || 0);
+    const qty = Number(inv['تعداد'] || inv['qty'] || inv['موجودی'] || 0);
     if (!code || !brand) continue;
 
     const idx = brandCodeIndex[brand];
-    let
+    let item = idx ? idx.get(code) : null;
+    if (item) {
+      merged.push({ ...item, qty });
+    }
+  }
+
+  cache.merged = merged;
+  cache.timestamp = now;
+  return merged;
+}
