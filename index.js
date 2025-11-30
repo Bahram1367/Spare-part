@@ -16,7 +16,7 @@ const {
   SPECIAL_OFFER_TEXT
 } = process.env;
 
-if (!BOT_TOKEN  !ADMIN_ID  !GITHUB_RAW_BASE  !INVENTORY_FILE  !BRAND_FILES) {
+if (!BOT_TOKEN || !ADMIN_ID || !GITHUB_RAW_BASE || !INVENTORY_FILE || !BRAND_FILES) {
   console.error('Missing env config: BOT_TOKEN, ADMIN_ID, GITHUB_RAW_BASE, INVENTORY_FILE, BRAND_FILES are required');
   process.exit(1);
 }
