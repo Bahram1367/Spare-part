@@ -25,8 +25,9 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // --- Persistence (JSON files) ---
 const DATA_DIR = './data';
-const MEMBERS_FILE = ${DATA_DIR}/members.json;   // approved members
-const ORDERS_FILE = ${DATA_DIR}/orders.json;     // submitted orders
+const MEMBERS_FILE = `${DATA_DIR}/members.json`;   // approved members
+
+const ORDERS_FILE = `${DATA_DIR}/orders.json`;     // submitted orders
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 if (!fs.existsSync(MEMBERS_FILE)) fs.writeFileSync(MEMBERS_FILE, JSON.stringify({ members: [] }, null, 2));
