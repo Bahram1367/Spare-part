@@ -106,3 +106,11 @@ async function buildMergedCache(force = false) {
   cache.timestamp = now;
   return merged;
 }
+
+// --- Bot commands (نمونه ساده) ---
+bot.start((ctx) => ctx.reply('خوش آمدید! برای شروع، یک گزینه انتخاب کنید.'));
+bot.command('about', (ctx) => ctx.reply(ABOUT_TEXT || 'درباره ما'));
+bot.command('contact', (ctx) => ctx.reply(CONTACT_TEXT || 'تماس با ما'));
+bot.command('offers', (ctx) => ctx.reply(SPECIAL_OFFER_TEXT || 'پیشنهاد ویژه‌ای وجود ندارد'));
+
+bot.launch();
