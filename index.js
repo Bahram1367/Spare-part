@@ -1,3 +1,10 @@
+console.log("ENV CHECK:", {
+  BOT_TOKEN,
+  ADMIN_ID,
+  GITHUB_RAW_BASE,
+  INVENTORY_FILE,
+  BRAND_FILES
+});
 import 'dotenv/config';
 import { Telegraf, Markup } from 'telegraf';
 import fetch from 'node-fetch';
