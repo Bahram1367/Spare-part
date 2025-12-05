@@ -1,10 +1,3 @@
-console.log("ENV CHECK:", {
-  BOT_TOKEN,
-  ADMIN_ID,
-  GITHUB_RAW_BASE,
-  INVENTORY_FILE,
-  BRAND_FILES
-});
 import 'dotenv/config';
 import { Telegraf, Markup } from 'telegraf';
 import fetch from 'node-fetch';
@@ -22,6 +15,15 @@ const {
   CONTACT_TEXT,
   SPECIAL_OFFER_TEXT
 } = process.env;
+
+// تست مقادیر محیطی
+console.log("ENV CHECK:", {
+  BOT_TOKEN,
+  ADMIN_ID,
+  GITHUB_RAW_BASE,
+  INVENTORY_FILE,
+  BRAND_FILES
+});
 
 if (!BOT_TOKEN || !ADMIN_ID || !GITHUB_RAW_BASE || !INVENTORY_FILE || !BRAND_FILES) {
   console.error('Missing env config: BOT_TOKEN, ADMIN_ID, GITHUB_RAW_BASE, INVENTORY_FILE, BRAND_FILES are required');
@@ -114,7 +116,7 @@ async function buildMergedCache(force = false) {
   return merged;
 }
 
-// --- Bot commands (نمونه ساده) ---
+// --- Bot commands ---
 bot.start((ctx) => ctx.reply('خوش آمدید! برای شروع، یک گزینه انتخاب کنید.'));
 bot.command('about', (ctx) => ctx.reply(ABOUT_TEXT || 'درباره ما'));
 bot.command('contact', (ctx) => ctx.reply(CONTACT_TEXT || 'تماس با ما'));
